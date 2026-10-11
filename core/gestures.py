@@ -17,8 +17,6 @@ class GestureEngine:
 
     def detect_static(self, landmarks):
         # --- PRIORITY 1: FIST ---
-        # To avoid conflict with volume control, we make the Fist detection more strict.
-        # Tips must be clearly below the PIP joints.
         is_fist = all(landmarks[i][1] > landmarks[i-2][1] + 0.01 for i in [8, 12, 16, 20])
         if is_fist:
             return "FIST"
@@ -40,14 +38,20 @@ class GestureEngine:
         index_tip = landmarks[8]
         dist = self.get_distance(thumb_tip, index_tip)
         
-        # Tightened the volume range to avoid overlap with a closed fist.
-        # If dist is very small (< 0.03), it's likely a tight pinch/fist.
         if 0.05 < dist < 0.15:
             return "VOLUME_CONTROL"
 
         return None
 
     def detect_dynamic(self, landmarks):
+        # To prevent conflict with OPEN_PALM, we only track swipes 
+        # if the hand is NOT in a perfect open palm state.
+        # If it's an open palm, we treat it as a static gesture unless 
+        # the movement is very aggressive.
+        
+        # Check if it's an open palm
+        is_palm = all(landmarks[i][1] < landmarks[i-2][1] for i in [8, 12, 16, 20])
+        
         palm_center = landmarks[9]
         self.wrist_buffer.append(palm_center[0])
 
@@ -56,17 +60,25 @@ class GestureEngine:
 
         diff = self.wrist_buffer[-1] - self.wrist_buffer[0]
 
-        if diff > self.threshold_swipe:
+        # If it's a palm, we require a MUCH stronger movement to trigger a swipe
+        # This prevents a slightly moving open palm from being seen as a swipe.
+        current_threshold = self.threshold_swipe * 2 if is_palm else self.threshold_swipe
+
+        if diff > current_threshold:
             self.wrist_buffer.clear()
             return "SWIPE_RIGHT"
-        elif diff < -self.threshold_swipe:
+        elif diff < -current_threshold:
             self.wrist_buffer.clear()
             return "SWIPE_LEFT"
 
         return None
 
     def recognize_gesture(self, landmarks):
-        gesture = self.detect_dynamic(landmarks) or self.detect_static(landmarks)
+        # CRITICAL CHANGE: Static first, then Dynamic.
+        # This means if the hand is a clear "OPEN PALM", it will be 
+        # recognized as a palm even if it's moving slightly.
+        # A swipe will only trigger if the hand is NOT a palm, or if it's moving very fast.
+        gesture = self.detect_static(landmarks) or self.detect_dynamic(landmarks)
         
         data = None
         if gesture == "VOLUME_CONTROL":
