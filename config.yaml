@@ -1,7 +1,17 @@
-# Gesture Mappings Configuration
-# Format: gesture_name: [key_combination]
-# Example:
-# pinch: ["ctrl", "c"]
-# fist: ["space"]
-# swipe_left: ["alt", "left"]
-# peace: ["win", "shift", "s"]
+# System Configuration
+# Edit these values to change the behavior of the application without touching the code.
+
+# Gesture Thresholds
+pinch_threshold: 0.05
+swipe_threshold: 0.1
+smoothing_window: 5
+stabilization_frames: 2
+
+# Gesture Action Mapping
+actions:
+  FIST: "space"
+  OPEN_PALM: "space"
+  PINCH: "volumedown"
+  SWIPE_LEFT: "prev"
+  SWIPE_RIGHT: "next"
+  PEACE: "screenshot"
