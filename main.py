@@ -1,11 +1,13 @@
 import cv2
 from core.vision import VisionPipeline
+from core.gestures import GestureEngine
 
 def main():
-    print("Starting Vision Test...")
+    print("Starting Gesture Test...")
     try:
         pipeline = VisionPipeline()
-        print("Vision Pipeline initialized successfully!")
+        engine = GestureEngine()
+        print("Systems initialized successfully!")
         
         cap = cv2.VideoCapture(0)
         if not cap.isOpened():
@@ -19,14 +21,20 @@ def main():
                 print("Error: Failed to grab frame.")
                 break
             
-            # Process the frame using our pipeline
+            # 1. Get landmarks from vision pipeline
             processed_frame, hand_data = pipeline.process_frame(frame)
             
-            # Display data on screen for testing
+            # 2. Process gestures for each detected hand
             if hand_data:
-                print(f"Hands detected: {len(hand_data)}")
+                for hand_landmarks in hand_data:
+                    gesture = engine.recognize_gesture(hand_landmarks)
+                    
+                    # Display the gesture name on the screen
+                    cv2.putText(processed_frame, f"Gesture: {gesture}", (10, 50), 
+                                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                    print(f"Detected: {gesture}")
             
-            cv2.imshow('Vision Test', processed_frame)
+            cv2.imshow('Gesture Test', processed_frame)
             
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
@@ -37,6 +45,8 @@ def main():
 
     except Exception as e:
         print(f"An error occurred during execution: {e}")
+        import traceback
+        traceback.print_exc()
 
 if __name__ == "__main__":
     main()
