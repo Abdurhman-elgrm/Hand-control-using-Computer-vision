@@ -1,0 +1,7 @@
+# Gesture Mappings Configuration
+# Format: gesture_name: [key_combination]
+# Example:
+# pinch: ["ctrl", "c"]
+# fist: ["space"]
+# swipe_left: ["alt", "left"]
+# peace: ["win", "shift", "s"]
