@@ -1,4 +1,5 @@
 import pyautogui
+import time
 from utils.config import ConfigManager
 
 class SystemController:
@@ -40,13 +41,21 @@ class SystemController:
         print(f"Executing Action for {gesture}: {action}")
 
         if action == "space":
-            pyautogui.press('space')
+            pyautogui.keyDown('space')
+            time.sleep(0.1)
+            pyautogui.keyUp('space')
         elif action == "volumedown":
             pyautogui.press('volumedown')
         elif action == "prev":
-            pyautogui.hotkey('ctrl', 'alt', 'left')
+            # Shift + P is the official YouTube shortcut to go to the PREVIOUS video in a playlist
+            pyautogui.keyDown('shift')
+            pyautogui.press('p')
+            pyautogui.keyUp('shift')
         elif action == "next":
-            pyautogui.hotkey('ctrl', 'alt', 'right')
+            # Shift + N is the official YouTube shortcut to go to the NEXT video in a playlist
+            pyautogui.keyDown('shift')
+            pyautogui.press('n')
+            pyautogui.keyUp('shift')
         elif action == "screenshot":
             pyautogui.hotkey('win', 'shift', 's')
         else:

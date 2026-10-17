@@ -39,8 +39,12 @@ def main():
                     raw_gesture, data = engine.recognize_gesture(hand_landmarks)
                     
                     # 3. Apply Stabilization
-                    stable_gesture = stabilizer.stabilize(raw_gesture)
-                    
+                    # Bypass stabilizer for swipes to ensure instant response to fast motion
+                    if "SWIPE" in raw_gesture:
+                        stable_gesture = raw_gesture
+                    else:
+                        stable_gesture = stabilizer.stabilize(raw_gesture)
+
                     # 4. Execute Action
                     if stable_gesture != "STABILIZING..." and stable_gesture != last_executed_gesture:
                         controller.execute_action(stable_gesture, data)
