@@ -1,0 +1,4 @@
+# Global Configuration
+threshold_swipe_velocity: 0.015
+cooldown_duration: 0.5
+smoothing_factor: 0.2
